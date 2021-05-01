@@ -71,11 +71,8 @@ private:
 	long double pot(const char*in, int&i);
 	long double mul(const char*in, int&i);
 	long double add(const char*in, int&i);
-
-	void define(const char*in, long double val);
-	void define(const char*in);
-	void undefine(const char*in);
 public:
+
 	calculator();
 	calculator(calculator&rhs);
 	calculator&operator=(calculator&rhs) {
@@ -95,6 +92,9 @@ public:
 	bool addOperator(const char*f);
 	bool delFunction(const char*in);
 	bool delOperator(const char*in);
+	void define(const char*in, long double val);
+	void define(const char*in);
+	void undefine(const char*in);
 };
 const std::vector<std::string> calculator::functions{
 	"cos", "sin", "tan", "acos", "asin", "atan", "ln"
