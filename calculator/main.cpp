@@ -26,12 +26,24 @@ bool compareStr(char*a, char*b,int l) {
 	return 1;
 }
 #define str(a)std::string(a)
-int main() {
-
+int main(int argc,char*argv[]) {
 	calculator calculate;
+	if (argc > 1)
+	{
+		for (int i = 1; i < argc; i++)
+		{
+			bool e=false;
+			auto res = calculate.calc(argv[i]);
+			if (e|=!!calculate.msg.size())for (const auto&a : calculate.msg)std::cout << "msg	" << a << std::endl;
+			if (e|=!!calculate.errors.size()) for (const auto&a : calculate.errors)std::cout << "error	" << a << std::endl;
+			if (e|=!!calculate.recorder.size()) for (const auto&a : calculate.recorder)std::cout << a << std::endl;
+			if (!e)
+				std::cout << res << std::endl;
+		}
+		return 0;
+	}
 	while (1) {
-		for (int i = 0; i < 1024; i++)
-			term[i] = 0;
+		std::cout << ">";
 		std::cin.getline(term, 1023);
 		if (str("cls") == term)
 			system("cls");
@@ -67,7 +79,7 @@ int main() {
 			if (calculate.msg.size())for (const auto&a : calculate.msg)std::cout<<"msg	" << a << std::endl;
 			if (calculate.errors.size()) for (const auto&a : calculate.errors)std::cout<<"error	" << a << std::endl;
 			if (calculate.recorder.size()) for (const auto&a : calculate.recorder)std::cout << a << std::endl;
-			std::cout << "=" << res << std::endl;
+			std::cout << res << std::endl;
 		}
 	}
 }

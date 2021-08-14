@@ -5,7 +5,6 @@
 #include<vector>
 #include<memory>
 
-auto mod=[](auto a, auto b) {return a-floor(a / b)*b;};
 
 class calculator {
 	calculator*parent = 0;
@@ -46,7 +45,7 @@ private:
 	std::vector<udfunction>udf;
 	std::vector<udoperator>udo;
 	int constcount = 0;//the first Variables are constance and should not be overwritten
-	static const std::vector<std::string>functions;
+	std::vector<std::string>functions;
 	std::vector<std::pair<std::string, long double>>Var;//variables local to this class
 	std::vector<std::pair<std::string,std::vector<long double>>>lists;//arrays of variables local to this class
 
@@ -95,7 +94,4 @@ public:
 	void define(const char*in, long double val);
 	void define(const char*in);
 	void undefine(const char*in);
-};
-const std::vector<std::string> calculator::functions{
-	"cos", "sin", "tan", "acos", "asin", "atan", "ln"
 };

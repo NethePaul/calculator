@@ -1,11 +1,11 @@
 #include"calculator.h"
 
-inline void calculator::recording(const std::string & r) {
+void calculator::recording(const std::string & r) {
 	if (record)
 		recorder.push_back(r);
 }
 
-inline calculator::udfunction * calculator::is_udf(const char * in) {
+calculator::udfunction * calculator::is_udf(const char * in) {
 	if (parent&&std::string(in, in + 7) == "parent:") { return parent->is_udf(in + 7); }
 	for (auto& a : udf)
 		if (std::string(in, in + a.name.size()) == a.name && (in[a.name.size()] == ':' || (in[a.name.size()] == '(')))
@@ -13,7 +13,7 @@ inline calculator::udfunction * calculator::is_udf(const char * in) {
 	return nullptr;
 }
 
-inline calculator::udoperator * calculator::is_udo(const char * in) {
+calculator::udoperator * calculator::is_udo(const char * in) {
 	if (parent&&std::string(in, in + 7) == "parent:") { return parent->is_udo(in + 7); }
 restart:
 	for (auto& a : udo)
@@ -24,14 +24,16 @@ restart:
 		return nullptr;
 }
 
-inline int calculator::is_Num(const char * in) {
+int calculator::is_Num(const char * in) {
 	const char* x = in;
-	for (;; in++)
-		if (!(*in && (*in == '.' || (*in >= '0'&&*in <= '9'))))
-			return in - x;
+	for (;*in; in++)
+		if (!(*in == '.' || (*in >= '0'&&*in <= '9'))) {
+			break;
+		}
+	return in-x;
 }
 
-inline std::pair<std::string, long double>* calculator::is_Var(const char * in, bool * is_const) {
+std::pair<std::string, long double>* calculator::is_Var(const char * in, bool * is_const) {
 	if (parent&&std::string(in, in + 7) == "parent:") { return parent->is_Var(in + 7); }
 	std::pair<std::string, long double>*buffer = 0;
 	int i = 0;
@@ -46,13 +48,13 @@ inline std::pair<std::string, long double>* calculator::is_Var(const char * in, 
 	return buffer;//*/
 }
 
-inline int calculator::is_Function(const char * in) {
+int calculator::is_Function(const char * in) {
 	for (int i = 0; i < functions.size(); i++)
 		if (functions[i] == std::string(in, in + functions[i].size())) return i + 1;
 	return 0;
 }
 
-inline bool calculator::is_value(const char * in) {
+bool calculator::is_value(const char * in) {
 	if (!in)return 0;
 	if (is_Num(in))return 1;
 	if (is_Function(in))return 1;
@@ -63,7 +65,7 @@ inline bool calculator::is_value(const char * in) {
 	return 0;
 }
 
-inline long double calculator::fakultat(int in) {
+long double calculator::fakultat(int in) {
 	long double buff = 1;
 	if (buff < 0)return NAN;
 	for (int i = in; i > 0; i--) {
@@ -72,7 +74,7 @@ inline long double calculator::fakultat(int in) {
 	return buff;
 }
 
-inline long double calculator::strToNum(const char * in) {
+long double calculator::strToNum(const char * in) {
 	long double buff = 0; double point = 0;
 	for (int i = 0; in[i]; i++) {
 		if (!point)
@@ -81,14 +83,14 @@ inline long double calculator::strToNum(const char * in) {
 			else return buff;
 		else {
 			point *= 10;
-			if (in[i] >= '0'&&in[i] <= '9')  buff += in[i] - '0' / point;
+			if (in[i] >= '0'&&in[i] <= '9')  buff += (in[i] - '0') / point;
 			else return buff;
 		}
 	}
 	return buff;
 }
 
-inline long double calculator::loadValue(const char * in, int & i, bool from_child) {
+long double calculator::loadValue(const char * in, int & i, bool from_child) {
 	not_from_child = !from_child; set_true_on_destruction a(not_from_child);
 	if (parent&&std::string(in, in + 7) == "parent:") { return parent->loadValue(in, i += 7, true); }
 	long double b = 0;
@@ -126,7 +128,7 @@ inline long double calculator::loadValue(const char * in, int & i, bool from_chi
 	return b;
 }
 
-inline long double calculator::function(const char * in, int & i) {
+long double calculator::function(const char * in, int & i) {
 	int buffer = is_Function(in + i);
 	if (!buffer)return NAN;
 	i += functions[buffer - 1].size();
@@ -143,7 +145,7 @@ inline long double calculator::function(const char * in, int & i) {
 	}
 }
 
-inline long double calculator::cudf(const char * in, int & i, udfunction * p) {//calculate user defined function
+long double calculator::cudf(const char * in, int & i, udfunction * p) {//calculate user defined function
 begin:
 	i += p->name.size();
 	//if (!p->calc) { errors.push_back("parent function deleted"); return 0; }//unreachable
@@ -177,7 +179,7 @@ paralist_finished:
 
 }
 
-inline long double calculator::cudo(const char * in, int & i) {//calculate user defined operator
+long double calculator::cudo(const char * in, int & i) {//calculate user defined operator
 	long double ANS = loadValue(in, i);
 	udoperator*p = 0;
 	while (1) {
@@ -194,7 +196,7 @@ inline long double calculator::cudo(const char * in, int & i) {//calculate user 
 	}
 }
 
-inline long double calculator::pot(const char * in, int & i) {
+long double calculator::pot(const char * in, int & i) {
 	long double ANS = cudo(in, i);
 	while (1) {
 		if (in[i] == '^') {
@@ -229,7 +231,7 @@ inline long double calculator::pot(const char * in, int & i) {
 	}
 }
 
-inline long double calculator::mul(const char * in, int & i) {
+long double calculator::mul(const char * in, int & i) {
 	long double ANS = pot(in, i);
 	while (1) {
 		if (in[i] == '*') {
@@ -259,14 +261,14 @@ inline long double calculator::mul(const char * in, int & i) {
 			if (is_value(in + i + 1)) {
 				long double buffer = pot(in, ++i);
 				if (!buffer)ANS = NAN;
-				else ANS = mod(ANS, buffer);
+				else ANS = ANS - floor(ANS / buffer)*buffer;
 			}recording("%");
 		}
 		else return ANS;
 	}
 }
 
-inline long double calculator::add(const char * in, int & i) {
+long double calculator::add(const char * in, int & i) {
 	long double ANS = mul(in, i);
 	while (1) {
 		if (in[i] == '+') {
@@ -289,12 +291,12 @@ inline long double calculator::add(const char * in, int & i) {
 	}
 }
 
-inline void calculator::define(const char * in, long double val) {
+void calculator::define(const char * in, long double val) {
 	define(in);
 	Var.back().second = val;
 }
 
-inline void calculator::define(const char * in) {
+void calculator::define(const char * in) {
 	if (is_Var(in)) {
 		if (redef)
 			undefine(in);//avoid redefinition of same var
@@ -303,7 +305,7 @@ inline void calculator::define(const char * in) {
 	Var.push_back(std::make_pair<std::string, long double>(std::string(in), 0));
 }
 
-inline void calculator::undefine(const char * in) {
+void calculator::undefine(const char * in) {
 	msg.clear();
 	if (delFunction(in))msg.emplace_back("deleted function");
 	if (delOperator(in))msg.emplace_back("deleted operator");
@@ -314,7 +316,16 @@ inline void calculator::undefine(const char * in) {
 		}
 }
 
-inline calculator::calculator() {
+calculator::calculator() {
+	if (!functions.size()) {
+		functions.push_back("cos");
+		functions.push_back("sin");
+		functions.push_back("tan");
+		functions.push_back("acos");
+		functions.push_back("asin");
+		functions.push_back("atan");
+		functions.push_back("ln");
+	}
 	Var.push_back(std::make_pair(std::string("PI"), M_PI));
 	Var.push_back(std::make_pair(std::string("e"), M_E));
 	Var.push_back(std::make_pair(std::string("TAU"), 2 * M_PI));
@@ -322,11 +333,11 @@ inline calculator::calculator() {
 }
 
 
-inline calculator::calculator(calculator & rhs) {
+calculator::calculator(calculator & rhs) {
 	*this = rhs;
 }
 
-inline long double calculator::calc(const char * in, bool clear_messages, bool record_) {
+long double calculator::calc(const char * in, bool clear_messages, bool record_) {
 	set_true_on_destruction b(redef);
 	//set redef to true when this function returns
 	record = record_;
@@ -390,7 +401,7 @@ inline long double calculator::calc(const char * in, bool clear_messages, bool r
 		return buffer;
 }
 
-inline bool calculator::deleteVar(const char * name) {
+bool calculator::deleteVar(const char * name) {
 	for (int i = 4; i < Var.size(); i++)
 		if (Var[i].first == std::string(name)) {
 			Var.erase(Var.begin() + i--);
@@ -399,7 +410,7 @@ inline bool calculator::deleteVar(const char * name) {
 	return false;
 }
 
-inline bool calculator::setVar(const char * name, long double value) {
+bool calculator::setVar(const char * name, long double value) {
 	bool is_var_const;
 	auto a = is_Var(name, &is_var_const);
 	if (a && !is_var_const) {
@@ -409,7 +420,7 @@ inline bool calculator::setVar(const char * name, long double value) {
 	return false;
 }
 
-inline bool calculator::addFunction(const char * f) {//input "f(x,y)=x+y"
+bool calculator::addFunction(const char * f) {//input "f(x,y)=x+y"
 	if (*f == '[')return 0;
 	int name;
 	std::vector<std::pair<int, int>>para;
@@ -473,7 +484,7 @@ next3:
 		return 0;
 }
 
-inline bool calculator::addOperator(const char * f) {
+bool calculator::addOperator(const char * f) {
 	if (*f == '[')return 0;
 	std::pair<int, int>para1, para2, name;
 	int fb, fe;
@@ -538,7 +549,7 @@ next4:
 		return 0;
 }
 
-inline bool calculator::delFunction(const char * in) {
+bool calculator::delFunction(const char * in) {
 	for (auto& a : udf)
 		if (std::string(in) == a.name) {
 			//delete a.calc.ptr();
@@ -548,7 +559,7 @@ inline bool calculator::delFunction(const char * in) {
 	return false;
 }
 
-inline bool calculator::delOperator(const char * in) {
+bool calculator::delOperator(const char * in) {
 	for (auto& a : udo)
 		if (std::string(in) == a.name) {
 			//delete a.calc.ptr();
